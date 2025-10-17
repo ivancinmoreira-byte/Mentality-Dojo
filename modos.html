@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Modos del Dojo</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fdfdfd;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 30px;
+      background-color: #222;
+      color: white;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin: 0;
+    }
+
+    /* Botón hamburguesa esquina superior derecha */
+    .menu-bar {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 24px;
+      width: 30px;
+    }
+
+    .menu-bar div {
+      height: 4px;
+      background-color: white;
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    .menu-bar.active div:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .menu-bar.active div:nth-child(2) {
+      opacity: 0;
+    }
+    .menu-bar.active div:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    .menu-estadisticas {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      z-index: 10;
+      color: black;
+    }
+
+    .modo-container {
+      margin: 40px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      align-items: center;
+      max-width: 600px;
+    }
+
+    .modo {
+      background-color: #eee;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+
+    .modo:hover {
+      transform: translateY(-5px);
+    }
+
+    .boton-modo {
+      background-color: #222;
+      color: white;
+      padding: 14px 28px;
+      font-size: 20px;
+      border: none;
+      border-radius: 12px;
+      margin: 10px 5px;
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(.17,.67,.83,.67), background 0.3s, box-shadow 0.3s;
+      box-shadow: 0 6px 0 #111;
+    }
+
+    .boton-modo:hover {
+      background-color: #444;
+      box-shadow: 0 8px 0 #111, 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    .boton-modo:active {
+      transform: scale(0.88);
+      box-shadow: 0 2px 0 #000;
+    }
+
+    /* Rebote al hacer clic */
+    .boton-modo.click-effect {
+      animation: rebote 0.3s ease forwards;
+    }
+
+    @keyframes rebote {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.15); }
+      50% { transform: scale(0.95); }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    select, input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+
+    #resultado, #operacion, #verificacion, #estadisticas, #contador, #cronometro, #promedio {
+      margin-top: 20px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚔️ Modo Ninja</h1>
+    <div class="menu-bar" id="menuBar">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+    <div class="menu-estadisticas" id="menuEstadisticas">
+      <h3>📊 Estadísticas Ninja</h3>
+      <div id="acumuladas"></div>
+    </div>
+  </header>
+
+  <div class="modo-container">
+    <!-- Modo 1 -->
+    <div class="modo">
+      <h2>🧮 Modo 1: Tiempo de aparición</h2>
+      <label for="tiempoSeleccionado">Tiempo para mostrar resultado:</label>
+      <select id="tiempoSeleccionado">
+        <option value="3">3 segundos</option>
+        <option value="5">5 segundos</option>
+        <option value="10">10 segundos</option>
+        <option value="15">15 segundos</option>
+        <option value="20">20 segundos</option>
+      </select>
+      <br>
+      <button class="boton-modo" onclick="iniciarModoTiempo()">Iniciar</button>
+      <button class="boton-modo" onclick="pararModoTiempo()">Parar</button>
+      <div id="resultado"></div>
+      <div id="contador"></div>
+    </div>
+
+    <!-- Modo 2 -->
+    <div class="modo">
+      <h2>⏱️ Modo 2: Marca tu tiempo</h2>
+      <button class="boton-modo" onclick="modoMarca()">Iniciar</button>
+      <div id="operacion"></div>
+      <input type="number" id="respuestaUsuario" placeholder="Tu respuesta">
+      <br>
+      <button class="boton-modo" id="btnVerificar" onclick="verificarRespuesta()">Verificar</button>
+      <button class="boton-modo" onclick="mostrarEstadisticas()">Parar</button>
+      <div id="verificacion"></div>
+      <div id="estadisticas"></div>
+    </div>
+
+    <!-- Botón para regresar al index -->
+    <button class="boton-modo" id="btnRegresar">🏠 Volver al Inicio</button>
+  </div>
+
+  <!-- Sonido click personalizado -->
+  <audio id="sonidoPum" src="click.mp3" preload="auto"></audio>
+
+  <script>
+    const sonidoPum = document.getElementById("sonidoPum");
+    document.querySelectorAll(".boton-modo").forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Sonido
+        const sonido = new Audio("click.mp3");
+        sonido.volume = 0.5;
+        sonido.play();
+
+        // Rebote
+        btn.classList.remove("click-effect");
+        void btn.offsetWidth;
+        btn.classList.add("click-effect");
+
+        // Vibración
+        if (navigator.vibrate) navigator.vibrate(40);
+      });
+    });
+
+    // Menu estadisticas
+    const menuBar = document.getElementById("menuBar");
+    const menuEstadisticas = document.getElementById("menuEstadisticas");
+    menuBar.addEventListener("click", () => {
+      menuBar.classList.toggle("active");
+      menuEstadisticas.style.display = menuEstadisticas.style.display === "block" ? "none" : "block";
+      mostrarEstadisticasAcumuladas();
+    });
+
+    // Cronómetro global
+    let segundos = 0;
+    setInterval(() => {
+      segundos++;
+    }, 1000);
+
+    // Dificultad y rango
+    const dificultad = localStorage.getItem("dificultadSeleccionada") || "medium";
+    function obtenerRango() {
+      if (dificultad === "easy") return { min: 10, max: 99 };
+      if (dificultad === "medium") return { min: 100, max: 999 };
+      return { min: 1000, max: 9999 };
+    }
+
+    // ----- Modo 1 -----
+    let intervaloModo1, cuentaRegresiva;
+    function iniciarModoTiempo() {
+      pararModoTiempo();
+      generarOperacionTiempo();
+    }
+
+    function generarOperacionTiempo() {
+      const tiempo = parseInt(document.getElementById("tiempoSeleccionado").value);
+      const { min, max } = obtenerRango();
+      const num1 = Math.floor(Math.random() * (max - min + 1)) + min;
+      const num2 = Math.floor(Math.random() * (max - min + 1)) + min;
+      const operacion = Math.random() < 0.5 ? '+' : '-';
+      const resultado = operacion === '+' ? num1 + num2 : num1 - num2;
+
+      document.getElementById("resultado").innerText = `${num1} ${operacion} ${num2} = ...`;
+
+      let restante = tiempo;
+      document.getElementById("contador").innerText = `⏳ ${restante}`;
+      cuentaRegresiva = setInterval(() => {
+        restante--;
+        document.getElementById("contador").innerText = `⏳ ${restante}`;
+        if (restante <= 0) clearInterval(cuentaRegresiva);
+      }, 1000);
+
+      intervaloModo1 = setTimeout(() => {
+        document.getElementById("resultado").innerText = `${num1} ${operacion} ${num2} = ${resultado}`;
+        setTimeout(generarOperacionTiempo, 1000);
+      }, tiempo * 1000);
+    }
+
+    function pararModoTiempo() {
+      clearTimeout(intervaloModo1);
+      clearInterval(cuentaRegresiva);
+      document.getElementById("contador").innerText = "";
+    }
+
+    // ----- Modo 2 -----
+    let resultadoEsperado;
+    let inicioTiempo;
+    let tiempos = [];
+    let correctas = 0;
+    let incorrectas = 0;
+    let modo2Activo = false;
+
+    function modoMarca() {
+      modo2Activo = true;
+      generarOperacionMarca();
+    }
+
+    function generarOperacionMarca() {
+      const { min, max } = obtenerRango();
+      const num1 = Math.floor(Math.random() * (max - min + 1)) + min;
+      const num2 = Math.floor(Math.random() * (max - min + 1)) + min;
+      const operacion = Math.random() < 0.5 ? '+' : '-';
+      resultadoEsperado = operacion === '+' ? num1 + num2 : num1 - num2;
+
+      document.getElementById("operacion").innerText = `${num1} ${operacion} ${num2}`;
+      document.getElementById("respuestaUsuario").value = "";
+      document.getElementById("verificacion").innerText = "";
+      inicioTiempo = Date.now();
+      document.getElementById("respuestaUsuario").focus();
+    }
+
+    function verificarRespuesta() {
+      if (!modo2Activo) return;
+      const respuesta = parseInt(document.getElementById("respuestaUsuario").value);
+      const tiempo = ((Date.now() - inicioTiempo) / 1000).toFixed(2);
+      tiempos.push(parseFloat(tiempo));
+
+      if (respuesta === resultadoEsperado) {
+        correctas++;
+        document.getElementById("verificacion").innerText = `✅ Correcto en ${tiempo} segundos`;
+      } else {
+        incorrectas++;
+        document.getElementById("verificacion").innerText = `❌ Incorrecto. Era ${resultadoEsperado}`;
+      }
+      setTimeout(generarOperacionMarca, 1000);
+    }
+
+    document.getElementById("respuestaUsuario").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") document.getElementById("btnVerificar").click();
+    });
+
+    function mostrarEstadisticas() {
+      modo2Activo = false;
+      const total = tiempos.length;
+      const promedio = total > 0 ? (tiempos.reduce((a,b)=>a+b,0)/total).toFixed(2) : 0;
+      document.getElementById("estadisticas").innerHTML = `
+        📊 Promedio por respuesta: ${promedio} segundos<br>
+        ✅ Correctas: ${correctas}<br>
+        ❌ Incorrectas: ${incorrectas}
+      `;
+      let acumuladas = JSON.parse(localStorage.getItem("estadisticasAcumuladas")||"[]");
+      acumuladas.push({promedio,total,correctas,incorrectas});
+      localStorage.setItem("estadisticasAcumuladas", JSON.stringify(acumuladas));
+    }
+
+    function mostrarEstadisticasAcumuladas() {
+      const acumuladas = JSON.parse(localStorage.getItem("estadisticasAcumuladas")||"[]");
+      const cont = document.getElementById("acumuladas");
+      if(acumuladas.length===0) cont.innerHTML = "No hay estadísticas aún.";
+      else cont.innerHTML = acumuladas.map((s,i)=>`Sesión ${i+1}: Promedio ${s.promedio}s | ✅${s.correctas} ❌${s.incorrectas}`).join("<br>");
+    }
+
+    // Botón regresar al index
+    const btnRegresar = document.getElementById("btnRegresar");
+    btnRegresar.addEventListener("click", () => {
+      const sonido = new Audio("click.mp3");
+      sonido.volume = 0.5;
+      sonido.play();
+
+      btnRegresar.classList.remove("click-effect");
+      void btnRegresar.offsetWidth;
+      btnRegresar.classList.add("click-effect");
+
+      if (navigator.vibrate) navigator.vibrate(40);
+
+      setTimeout(() => { window.location.href = "index.html"; }, 200);
+    });
+  </script>
+</body>
+</html>
+
+

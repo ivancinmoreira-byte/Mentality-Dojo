@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>🥷 Dojo Ninja Matemático</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: linear-gradient(135deg, #fafafa, #e3e3e3);
+      color: #222;
+      overflow-x: hidden;
+      animation: fondoAnimado 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes fondoAnimado {
+      0% { background: linear-gradient(135deg, #fafafa, #ddd); }
+      100% { background: linear-gradient(135deg, #f0f0f0, #cfcfcf); }
+    }
+
+    /* Barra superior con fórmulas */
+    .barra-cientifica {
+      width: 100%;
+      background: white;
+      padding: 18px 0;
+      font-size: 22px;
+      font-family: "Courier New", monospace;
+      border-bottom: 3px solid #ccc;
+      overflow: hidden;
+      white-space: nowrap;
+      animation: deslizar 25s linear infinite;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-shadow: 0 0 6px rgba(200,200,200,0.6);
+      transition: all 0.3s ease;
+    }
+
+    @keyframes deslizar {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    h1 {
+      font-size: 3.5em;
+      margin: 20px 0 10px 0;
+      animation: aparecer 1s ease-out;
+    }
+
+    @keyframes aparecer {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      font-size: 1.8em;
+      margin-bottom: 40px;
+      color: #444;
+    }
+
+    .boton-grande {
+      display: block;
+      width: 80%;
+      max-width: 420px;
+      margin: 20px auto;
+      padding: 25px;
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(145deg, #222, #111);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(.17,.67,.83,.67), 
+                  background 0.3s, box-shadow 0.3s, filter 0.2s;
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .boton-grande:hover {
+      background: linear-gradient(145deg, #333, #222);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.35), 0 0 15px rgba(255,255,255,0.2);
+      filter: brightness(1.2);
+      transform: scale(1.05);
+    }
+
+    .boton-grande:active {
+      transform: scale(0.95) rotate(-1deg);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Efecto de rebote al pulsar */
+    .boton-grande.click-effect {
+      animation: rebote 0.3s ease forwards;
+    }
+
+    @keyframes rebote {
+      0% { transform: scale(1); }
+      30% { transform: scale(1.15); }
+      50% { transform: scale(0.95); }
+      70% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="barra-cientifica">
+    E=mc²   |   ∫f(x)dx   |   F=ma   |   a²+b²=c²   |   Δx·Δp ≥ ħ/2   |   sin²θ+cos²θ=1   |   V=IR   |   λ=h/p   |   ∇·E=ρ/ε₀
+  </div>
+
+  <h1>🥷 Dojo Ninja</h1>
+  <h2>🔥 Elige tu Dificultad 🔥</h2>
+
+  <button class="boton-grande" onclick="seleccionarDificultad('easy')">🥷 Genin (Fácil - 2 dígitos)</button>
+  <button class="boton-grande" onclick="seleccionarDificultad('medium')">⚔️ Chunin (Medio - 3 dígitos)</button>
+  <button class="boton-grande" onclick="seleccionarDificultad('hard')">🕶️ ANBU (Difícil - 4 dígitos)</button>
+
+  <!-- Sonido satisfactorio -->
+  <audio id="sonidoPum" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" preload="auto"></audio>
+
+  <script>
+    const sonidoPum = document.getElementById("sonidoPum");
+
+    document.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        // Reproducir sonido
+        sonidoPum.currentTime = 0;
+        sonidoPum.volume = 0.5; // Suave y relajante
+        sonidoPum.play();
+
+        // Efecto visual de rebote
+        btn.classList.remove("click-effect");
+        void btn.offsetWidth; // trigger reflow
+        btn.classList.add("click-effect");
+
+        // Vibración en dispositivos móviles
+        if (navigator.vibrate) navigator.vibrate(40);
+      });
+    });
+
+    function seleccionarDificultad(nivel) {
+      localStorage.setItem("dificultadSeleccionada", nivel);
+      window.location.href = "modos.html";
+    }
+  </script>
+</body>
+</html>
+
